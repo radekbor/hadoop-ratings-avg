@@ -21,6 +21,7 @@ class MyPair(initA: Int, initB: Int) extends Writable {
   private[this] val b = new IntWritable(initB)
 
   def getA() = a.get()
+
   def getB() = b.get()
 
   override def write(out: DataOutput): Unit = {
@@ -54,10 +55,23 @@ class IntSumReader extends Reducer[Text, MyPair, Text, MyPair] {
     val tuples = valuesAsScala.map(t => {
       (t.getA(), t.getB())
     })
-    val tuple = tuples.foldLeft((0, 0))((current, x) => (current._1 + x._1, current._2 + x._2))
-
-    context.write(key, new MyPair(tuple._1, tuple._2))
+    val (sum, votes) = tuples.foldLeft((0, 0))((current, x) => (current._1 + x._1, current._2 + x._2))
+    context.write(key, new MyPair(sum, votes))
   }
+}
+
+class AvgCombiner extends Reducer[Text, MyPair, Text, MyPair] {
+
+  override def reduce(key: Text, values: Iterable[MyPair],
+                      context: Reducer[Text, MyPair, Text, MyPair]#Context): Unit = {
+    val valuesAsScala = values.asScala
+    val tuples = valuesAsScala.map(t => {
+      (t.getA(), t.getB())
+    })
+    val (sum, votes) = tuples.foldLeft((0, 0))((current, x) => (current._1 + x._1, current._2 + x._2))
+    context.write(key, new MyPair(sum / votes, votes))
+  }
+
 }
 
 
@@ -68,8 +82,8 @@ object Avg {
 
     job.setJarByClass(this.getClass)
     job.setMapperClass(classOf[ExtractMarks])
-    job.setCombinerClass(classOf[IntSumReader])
     job.setReducerClass(classOf[IntSumReader])
+    job.setCombinerClass(classOf[AvgCombiner])
 
     job.setOutputKeyClass(classOf[Text])
     job.setOutputValueClass(classOf[MyPair])
