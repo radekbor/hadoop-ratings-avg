@@ -5,7 +5,7 @@ import java.lang.Iterable
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.{IntWritable, Text, Writable}
+import org.apache.hadoop.io.{DoubleWritable, IntWritable, Text, Writable}
 import org.apache.hadoop.mapred.join.TupleWritable
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
@@ -13,12 +13,12 @@ import org.apache.hadoop.mapreduce.{Job, Mapper, Reducer}
 
 import scala.collection.JavaConverters._
 
-class MyPair(initA: Int, initB: Int) extends Writable {
+class MyPair(initA: Double, initB: Double) extends Writable {
 
   def this() = this(0, 0)
 
-  private[this] val a = new IntWritable(initA)
-  private[this] val b = new IntWritable(initB)
+  private[this] val a = new DoubleWritable(initA)
+  private[this] val b = new DoubleWritable(initB)
 
   def getA() = a.get()
 
@@ -55,7 +55,7 @@ class IntSumReader extends Reducer[Text, MyPair, Text, MyPair] {
     val tuples = valuesAsScala.map(t => {
       (t.getA(), t.getB())
     })
-    val (sum, votes) = tuples.foldLeft((0, 0))((current, x) => (current._1 + x._1, current._2 + x._2))
+    val (sum, votes) = tuples.foldLeft((0.0, 0.0))((current, x) => (current._1 + x._1, current._2 + x._2))
     context.write(key, new MyPair(sum, votes))
   }
 }
@@ -68,7 +68,7 @@ class AvgCombiner extends Reducer[Text, MyPair, Text, MyPair] {
     val tuples = valuesAsScala.map(t => {
       (t.getA(), t.getB())
     })
-    val (sum, votes) = tuples.foldLeft((0, 0))((current, x) => (current._1 + x._1, current._2 + x._2))
+    val (sum, votes) = tuples.foldLeft((0.0, 0.0))((current, x) => (current._1 + x._1, current._2 + x._2))
     context.write(key, new MyPair(sum / votes, votes))
   }
 
