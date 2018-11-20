@@ -3,13 +3,13 @@ package org.radekbor
 import java.io.{DataInput, DataOutput}
 import java.lang.Iterable
 
-import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.conf.{Configuration, Configured}
 import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.{DoubleWritable, IntWritable, Text, Writable}
-import org.apache.hadoop.mapred.join.TupleWritable
+import org.apache.hadoop.io._
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.mapreduce.{Job, Mapper, Reducer}
+import org.apache.hadoop.util.{Tool, ToolRunner}
 
 import scala.collection.JavaConverters._
 
@@ -74,9 +74,8 @@ class AvgCombiner extends Reducer[Text, MyPair, Text, MyPair] {
 
 }
 
-
-object Avg {
-  def main(args: Array[String]): Unit = {
+class Avg extends Configured with Tool {
+  override def run(args: Array[String]): Int = {
     val configuration = new Configuration
     val job = Job.getInstance(configuration, "marks count")
 
@@ -90,7 +89,14 @@ object Avg {
 
     FileInputFormat.addInputPath(job, new Path(args(0)))
     FileOutputFormat.setOutputPath(job, new Path(args(1)))
-    System.exit(if (job.waitForCompletion(true)) 0 else 1)
+    if (job.waitForCompletion(true)) 0 else 1
+  }
+}
+
+object Avg {
+  def main(args: Array[String]): Unit = {
+    val result = ToolRunner.run(new Avg(), args)
+    System.exit(result)
   }
 
 }
