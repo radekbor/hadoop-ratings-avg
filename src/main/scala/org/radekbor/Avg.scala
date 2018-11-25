@@ -13,13 +13,17 @@ import org.apache.hadoop.util.{Tool, ToolRunner}
 
 import scala.collection.JavaConverters._
 
-
 class ExtractMarks extends Mapper[Object, Text, Text, MyPair] {
 
   override def map(key: Object, value: Text, context: Mapper[Object, Text, Text, MyPair]#Context): Unit = {
     val Array(i, movieId, rate, _) = value.toString.split("\\::")
     val word = new Text()
     word.set(movieId)
+    if (rate.toInt < 1) {
+      context.setStatus("Detected possibly corrupted record: see logs.")
+      context.getCounter(Counters.RATE_LOWER_THAN_1).increment(1)
+    }
+
     val writable = new MyPair(rate.toInt, 1)
     context.write(word, writable)
   }
