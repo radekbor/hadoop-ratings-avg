@@ -13,29 +13,6 @@ import org.apache.hadoop.util.{Tool, ToolRunner}
 
 import scala.collection.JavaConverters._
 
-class MyPair(initA: Double, initB: Double) extends Writable {
-
-  def this() = this(0, 0)
-
-  private[this] val a = new DoubleWritable(initA)
-  private[this] val b = new DoubleWritable(initB)
-
-  def getA() = a.get()
-
-  def getB() = b.get()
-
-  override def write(out: DataOutput): Unit = {
-    a.write(out)
-    b.write(out)
-  }
-
-  override def readFields(in: DataInput): Unit = {
-    a.readFields(in)
-    b.readFields(in)
-  }
-
-  override def toString: String = a.get() + " " + b.get()
-}
 
 class ExtractMarks extends Mapper[Object, Text, Text, MyPair] {
 

@@ -13,3 +13,4 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient"
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+libraryDependencies += "org.scalamock" %% "scalamock" % "4.1.0" % "test"
