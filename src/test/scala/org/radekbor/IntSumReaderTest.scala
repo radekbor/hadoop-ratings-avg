@@ -9,7 +9,7 @@ class IntSumReaderTest extends FunSuite with MockFactory {
 
   val reducer = new IntSumReader()
 
-  test("should extract marks from line") {
+  test("should sum values and sum marks") {
     val key = new Text("2")
     val value1 = new MyPair(3, 1)
     val value2 = new MyPair(2, 1)
