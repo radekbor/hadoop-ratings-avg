@@ -58,6 +58,8 @@ class AvgCombiner extends Reducer[Text, MyPair, Text, MyPair] {
 class Avg extends Configured with Tool {
   override def run(args: Array[String]): Int = {
     val configuration = new Configuration
+    configuration.set("mapreduce.job.end-notification.url","http://localhost:8000/end/job/$jobId/status/$jobStatus")
+
     val job = Job.getInstance(configuration, "marks count")
 
     job.setJarByClass(this.getClass)
